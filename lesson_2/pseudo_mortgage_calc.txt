@@ -1,0 +1,46 @@
+prompt user for name
+prompty user for type of loan
+
+Ask user loan amount
+ask user APR
+ask user loan duration in years
+
+calculate monthly interest rate from APR
+calculate loan duration in months
+insert values into the equation
+calculate monthly payment
+
+output information to user
+
+
+
+START
+
+PRINT greeting and prompt
+
+GET loan amount
+SET loan amount
+
+GET Annual Percentage Rate (APR) %
+SET APR.to_f/ 100 / 12
+
+GET loan duration
+SET loan duration.to_f * 12
+
+CALCULATE monthly_payment
+
+PRINT "At a #{monthly inerest rate} over #{months} your monthly payment is #{monthly_payment}
+
+GET repeat calculation
+SET answer
+ BREAK IF answer is not yes
+ 
+END
+
+
+monthly_payment = loan_amount * (monthly_interest_rate / (1 - (1 + monthly_interest_rate)**(-months)))
+
+monthly_payment =
+loan_amount =
+monthly_interest_rate =
+months =
