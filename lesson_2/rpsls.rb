@@ -5,7 +5,15 @@ VALID_CHOICES = {
   o: 'spock',
   l: 'lizard'
 }
-GAME_SCORE = { player: 0, computer: 0 }
+
+PLAYER_MOVES = {
+  rock: ['lizard', 'scissors'],
+  paper: ['rock', 'spock'],
+  scissors: ['paper', 'lizard'],
+  lizard: ['spock', 'paper'],
+  spock: ['scissors', 'rock']
+}
+
 WINNING_SCORE = 3
 NEW_LINE = "\n"
 
@@ -27,6 +35,12 @@ def print_stars
   puts NEW_LINE
 end
 
+def enter_to_continue
+  puts NEW_LINE
+  fancy_prompt('Press enter to continue')
+  STDIN.gets
+end
+
 def display_options
   puts NEW_LINE
   puts "Enter one of the following characters..."
@@ -36,33 +50,59 @@ def display_options
   puts NEW_LINE
 end
 
+def get_user_choice()
+  choice = ''
+  loop do
+    input_prompt(display_options)
+    choice = gets.chomp
+    if VALID_CHOICES.include?(choice.downcase.to_sym)
+       break
+    else
+      fancy_prompt('Oops! Please try again.')
+    end
+  end
+  choice
+end
+
 def display_moves(player, computer)
   print_stars
   puts "\nPlayer uses #{player.upcase}"
   sleep(1.0)
   puts "Computer uses #{computer.upcase}"
   print_stars
-  sleep(2.3)
+  sleep(1.0)
+  enter_to_continue
   reset_screen
 end
 
-def print_result(player, computer, hash)
+def determine_result(player, computer, hash)
   if hash[player.to_sym].include?(computer)
-    'Player wins!'
+    winner = 'Player'
   elsif hash[computer.to_sym].include?(player)
+    winner = 'Computer'
+  else
+    winner = 'Tie'
+  end
+  winner
+end
+
+def print_result(winner)
+  if winner.include?('Player')
+    'Player wins!'
+  elsif winner.include?('Computer')
     'Computer wins!'
   else
     "It's a tie!"
   end
 end
 
-def update_score(result)
+def update_score(result, score)
   if result.include?('Player')
-    GAME_SCORE[:player] += 1
+    score[:player] += 1
   elsif result.include?('Computer')
-    GAME_SCORE[:computer] += 1
+    score[:computer] += 1
   else
-    GAME_SCORE
+    score
   end
 end
 
@@ -81,62 +121,59 @@ def print_winner(player_score)
   end
 end
 
-player_moves = {
-  rock: ['lizard', 'scissors'],
-  paper: ['rock', 'spock'],
-  scissors: ['paper', 'lizard'],
-  lizard: ['spock', 'paper'],
-  spock: ['scissors', 'rock']
-}
+def play_again?()   
+  answer = ''
+  while answer.downcase != 'no' && answer.downcase != 'yes'
+    input_prompt('Would you like to play again? (yes/no)')
+    answer = gets.chomp
+    puts NEW_LINE
+  end
+  if answer.downcase == 'yes'
+    true
+  else
+    false
+  end
+end
 
+reset_screen
 print_stars
 fancy_prompt('Welcome to my Ruby Rock, Paper, Scissors, Spock & Lizard Game!')
+fancy_prompt('You must win 3 rounds to win the game')
 
 loop do
-  choice = ''
-  until GAME_SCORE.value?(WINNING_SCORE)
-
-    loop do
-      input_prompt(display_options)
-      choice = gets.chomp
-      if VALID_CHOICES.include?(choice.downcase.to_sym)
-        break
-      else
-        fancy_prompt('Oops! Please try again.')
-      end
-    end
-
+  game_score = { player: 0, computer: 0 }
+  until game_score.value?(WINNING_SCORE)
+    choice = get_user_choice()
     player_choice = VALID_CHOICES[choice.downcase.to_sym]
     computer_choice = VALID_CHOICES.values.sample
 
     reset_screen
     display_moves(player_choice, computer_choice)
-    result = print_result(player_choice, computer_choice, player_moves)
-    fancy_prompt(result)
+    round_result = determine_result(player_choice, computer_choice, PLAYER_MOVES)
+    
+    fancy_prompt(print_result(round_result))
     puts NEW_LINE
-    sleep(2.3)
+    sleep(1.0)
+    enter_to_continue
     reset_screen
 
-    update_score(result)
-    print_scoreboard(GAME_SCORE[:player], GAME_SCORE[:computer])
+    update_score(round_result, game_score)
+    print_scoreboard(game_score[:player], game_score[:computer])
+    sleep(1.0)
+    enter_to_continue
+    reset_screen
   end
 
-  print_winner(GAME_SCORE[:player])
+  print_winner(game_score[:player])
   puts NEW_LINE
-  sleep(5.0)
+  sleep(1.0)
+  enter_to_continue
   reset_screen
 
-  answer = ''
-  while answer.downcase != 'no' && answer.downcase != 'yes'
-    input_prompt('Would you like to play again?')
-    answer = gets.chomp
-    puts NEW_LINE
-  end
+  break unless play_again?()
 
-  break unless answer.downcase == 'yes'
-
-  GAME_SCORE[:player] = 0
-  GAME_SCORE[:computer] = 0
+  game_score[:player] = 0
+  game_score[:computer] = 0
 end
 
 fancy_prompt('Thanks for playing! See you next time.')
