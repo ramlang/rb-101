@@ -61,12 +61,10 @@ end
 
 def who_goes_first?
   loop do
-    prompt "Choose who will go first: Player or Computer" \
-           " or random: "
+    prompt "Choose who will go first: Player or Computer or random: "
     answer = gets.chomp.downcase
-    return 'player' if answer == 'player'
-    return 'computer' if answer == 'computer'
     return ['player', 'computer'].sample if answer == 'random'
+    answer == 'player' ? answer : answer == 'computer'
   end
 end
 
