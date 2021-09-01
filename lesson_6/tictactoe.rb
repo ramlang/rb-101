@@ -1,18 +1,3 @@
-# tic tac toe steps
-# ----------
-# 1. Display the initial empty 3 x 3 board
-# 2. Ask user to mark a square
-# 3. Computer marks square
-# 4. Display the updated board state
-# 5. If winner, display winner
-# 6. If board is full, display tie
-# 7 If neither winner or full, go to step 2
-# 8. Play again?
-# 9. If yes, go to step 1
-# 10. Good bye
-# ----------
-require 'pry'
-
 INITIAL_MARKER = ' '
 PLAYER_MARKER = 'X'
 COMPUTER_MARKER = 'O'
@@ -32,7 +17,7 @@ def display_scoreboard(scrbrd)
   puts "COMPUTER (O) = #{scrbrd[:computer]}"
 end
 
-# rubocop disable Metrics/MethodLength, Metrics/AbcSize
+# rubocop:disable Metrics/MethodLength, Metrics/AbcSize
 def display_board(brd, scrbrd)
   system 'clear'
   prompt "Win #{WINNING_SCORE} games against the Computer!\n"
@@ -51,7 +36,7 @@ def display_board(brd, scrbrd)
   puts "     |     |"
   puts ""
 end
-# rubocop enable Metrics/MethodLength, Metrics/AbcSize
+# rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
 def initialize_board
   new_board = {}
@@ -74,21 +59,21 @@ def joinor(arr, delimiter= ', ', word= 'or')
   end
 end
 
-def who_goes_first?()
+def who_goes_first?
   loop do
-    prompt "Choose who will go first: Player or Computer" +
-    " or random: "
+    prompt "Choose who will go first: Player or Computer" \
+           " or random: "
     answer = gets.chomp.downcase
     return 'player' if answer == 'player'
     return 'computer' if answer == 'computer'
-    return [true, false].sample if answer == 'random'
+    return ['player', 'computer'].sample if answer == 'random'
   end
 end
 
 def player_places_piece!(brd)
   square = ''
   loop do
-    prompt "Choose a position to place your piece" +
+    prompt "Choose a position to place your piece" \
            " #{joinor(empty_squares(brd))}: "
     square = gets.chomp.to_i
     break if empty_squares(brd).include?(square)
@@ -102,11 +87,10 @@ def computer_places_piece!(brd)
   brd[square] = COMPUTER_MARKER
 end
 
-
 def computer_strategy!(brd, marker)
   lines = WINNING_LINES.select do |line|
     brd.values_at(*line).count(marker) == 2 &&
-    brd.values_at(*line).count(INITIAL_MARKER) == 1
+      brd.values_at(*line).count(INITIAL_MARKER) == 1
   end
   return false if lines.empty?
   lines.sample.each do |num|
@@ -116,11 +100,9 @@ end
 
 def computer_turn!(brd)
   if computer_strategy!(brd, COMPUTER_MARKER) ||
-    computer_strategy!(brd, PLAYER_MARKER)
-    return
+     computer_strategy!(brd, PLAYER_MARKER)
   elsif brd[5] == INITIAL_MARKER
     brd[5] = COMPUTER_MARKER
-    return
   elsif computer_places_piece!(brd)
   end
 end
@@ -133,9 +115,8 @@ def place_piece!(brd, player)
   end
 end
 
-def switch_players(player)
-  return player = 'computer' if player == 'player'
-  return player = 'player' if player == 'computer'
+def switch_players(turn)
+  turn == 'player' ? 'computer' : 'player'
 end
 
 def board_full?(brd)
@@ -168,7 +149,7 @@ def play_again?
 end
 
 def update_scoreboard(winner, scrbrd)
-  scrbrd[winner.downcase.to_sym] += 1 unless winner == nil
+  scrbrd[winner.downcase.to_sym] += 1 unless winner.nil?
 end
 
 def grand_winner?(scrbrd)
@@ -177,21 +158,19 @@ def grand_winner?(scrbrd)
   end
 end
 
-def print_grand_winner(winner, scrbrd)
+def print_grand_winner(winner)
   winner = winner.capitalize
   if winner == 'Player'
-    prompt "Well done! #{winner} won" +
-           " #{WINNING_SCORE} games in a row!"
+    prompt "Well done! #{winner} won #{WINNING_SCORE} games in a row!"
   elsif winner == 'Computer'
-    prompt "Oh no! #{winner} won" +
-           " #{WINNING_SCORE} games in a row!"
+    prompt "Oh no! #{winner} won #{WINNING_SCORE} games in a row!"
   end
 end
 
 loop do
   prompt "Let's play Tic Tac Toe!\n"
   current_player = who_goes_first?
-  scoreboard = {player: 0, computer: 0}
+  scoreboard = { player: 0, computer: 0 }
   board = initialize_board
   loop do
     board = initialize_board
@@ -201,10 +180,10 @@ loop do
       current_player = switch_players(current_player)
       break if someone_won?(board) || board_full?(board)
     end
-  
+
     display_board(board, scoreboard)
     current_winner = detect_winner(board)
-    
+
     if someone_won?(board)
       prompt "#{current_winner} won!"
     else
@@ -213,13 +192,14 @@ loop do
 
     update_scoreboard(current_winner, scoreboard)
     STDIN.gets
-    
+
     break if !!grand_winner?(scoreboard)
     break unless play_again?
   end
+
   if scoreboard.values.include?(WINNING_SCORE)
     winner = grand_winner?(scoreboard).to_s
-    print_grand_winner(winner, scoreboard)
+    print_grand_winner(winner)
     STDIN.gets
     break unless play_again?
   else
