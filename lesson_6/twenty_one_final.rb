@@ -43,13 +43,13 @@ def initialize_deck
 end
 
 def deal_two_cards!(deck, data)
-  data.each do |name, hash|
-    hash[:cards] = Array.new(2) { |n| deck.pop }
+  data.each do |_, hash|
+    hash[:cards] = Array.new(2) { deck.pop }
   end
 end
 
 def deal_next_card!(deck, name, data)
-  data[name][:cards] += Array.new(1) { |n| deck.pop }
+  data[name][:cards] += Array.new(1) { deck.pop }
 end
 
 def print_card_names(name, data)
@@ -70,21 +70,21 @@ def calculate_total(name, data)
   values = data[name][:cards].map do |card|
     card[1]
   end
-  
+
   values.each do |value|
-    if value == "Ace"
-      sum += 11
-    elsif value.to_i == 0
-      sum += 10
-    else
-      sum += value.to_i
-    end
+    sum += if value == "Ace"
+             11
+           elsif value.to_i == 0
+             10
+           else
+             value.to_i
+           end
   end
   sum = correct_for_ace!(values, sum)
   data[name][:total] = sum
 end
 
-def display_total(name, data= { dealer: { total: '?' }})
+def display_total(name, data= { dealer: { total: '?' } })
   header "#{name.to_s.capitalize} Total = #{data[name][:total]}"
 end
 
@@ -113,7 +113,7 @@ def display_table(data, hidden= true)
   puts NEW_LINE
   display_dealer_cards(data, hidden)
   puts NEW_LINE
-  
+
   display_total(:player, data)
   print_card_names(:player, data)
   display_points(data)
@@ -148,23 +148,23 @@ end
 
 def hit_or_stay?
   answer = nil
-    loop do
-      print "Hit or stay? => "
-      answer = gets.chomp
-      break if answer == 'hit' || answer == 'stay'
-    end
+  loop do
+    print "Hit or stay? => "
+    answer = gets.chomp
+    break if answer == 'hit' || answer == 'stay'
+  end
   system 'clear'
   answer
 end
-  
+
 def dealer_turn(deck, data)
-    while data[:dealer][:total] < STAY
-      deal_next_card!(deck, :dealer, data)
-      calculate_total(:dealer, data)
-      system 'clear'
-      display_table(data)
-      sleep(1.7)
-    end
+  while data[:dealer][:total] < STAY
+    deal_next_card!(deck, :dealer, data)
+    calculate_total(:dealer, data)
+    system 'clear'
+    display_table(data)
+    sleep(1.7)
+  end
 end
 
 def busted?(data)
@@ -255,7 +255,7 @@ game_data = { player: { cards: [],
                         score: 0 },
               dealer: { cards: [],
                         total: 0,
-                        score: 0 }}
+                        score: 0 } }
 
 loop do
   system 'clear'
@@ -267,11 +267,11 @@ loop do
   calculate_total(:dealer, game_data)
 
   display_table(game_data)
-
+  
   loop do
     player_turn(deck, game_data)
     busted?(game_data) ? break : stay_and_continue(:player)
-
+    system 'clear'
     display_table(game_data)
 
     dealer_turn(deck, game_data)
@@ -280,15 +280,12 @@ loop do
     break
   end
   system 'clear'
-  display_table(game_data, false)
-
   result = determine_round_winner(game_data)
   update_points(result, game_data)
 
   system 'clear'
-  display_winner(result) unless display_game_winner(game_data)
-
   display_table(game_data, false)
+  display_winner(result) unless display_game_winner(game_data)
 
   break unless play_again?
 
